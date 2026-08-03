@@ -13,6 +13,26 @@ async function createEvent(req, res, next) {
   }
 }
 
+async function getEvents(req, res, next) {
+  try {
+    const after = Number(req.query.after || 0);
+    const limit = Number(req.query.limit || 10);
+
+    const events = await eventService.getEvents(after, limit);
+
+    const nextCursor =
+      events.length > 0 ? events[events.length - 1].id : null;
+
+    res.status(200).json({
+      data: events,
+      next_cursor: nextCursor,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   createEvent,
+  getEvents,
 };

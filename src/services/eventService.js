@@ -18,6 +18,23 @@ async function createEvent(event) {
   return rows[0];
 }
 
+async function getEvents(after = 0, limit = 10) {
+  const query = `
+    SELECT *
+    FROM events
+    WHERE id > $1
+    ORDER BY id
+    LIMIT $2;
+  `;
+
+  const values = [after, limit];
+
+  const { rows } = await pool.query(query, values);
+
+  return rows;
+}
+
 module.exports = {
   createEvent,
+  getEvents,
 };
