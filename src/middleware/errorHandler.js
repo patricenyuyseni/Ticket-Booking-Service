@@ -1,4 +1,4 @@
-const { ZodError } = require("zod");
+import { ZodError } from "zod";
 
 function errorHandler(err, req, res, next) {
   if (err instanceof ZodError) {
@@ -15,4 +15,4 @@ function errorHandler(err, req, res, next) {
   });
 }
 
-module.exports = errorHandler;
+export default errorHandler;

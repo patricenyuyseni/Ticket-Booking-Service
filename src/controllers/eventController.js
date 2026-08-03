@@ -1,5 +1,5 @@
-const { createEventSchema } = require("../validation/eventSchema");
-const eventService = require("../services/eventService");
+import { createEventSchema } from "../validation/eventSchema.js";
+import eventService from "../services/eventService.js";
 
 async function createEvent(req, res, next) {
   try {
@@ -50,7 +50,7 @@ async function getEventById(req, res, next) {
   }
 }
 
-module.exports = {
+export default {
   createEvent,
   getEvents,
   getEventById,

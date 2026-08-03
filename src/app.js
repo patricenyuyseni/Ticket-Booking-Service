@@ -1,6 +1,7 @@
-const express = require("express");
-const eventRoutes = require("./routes/eventRoutes");
-const errorHandler = require("./middleware/errorHandler");
+import express from "express";
+import eventRoutes from "./routes/eventRoutes.js";
+import errorHandler from "./middleware/errorHandler.js";
+import errorHandler from "./middleware/errorHandler.js";
 
 const app = express();
 

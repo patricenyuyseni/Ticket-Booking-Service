@@ -1,4 +1,4 @@
-const pool = require("../config/db");
+import pool from "../config/db.js";
 
 async function createEvent(event) {
   const { name, venue, starts_at, capacity } = event;
@@ -46,7 +46,7 @@ async function getEventById(id) {
   return rows[0];
 }
 
-module.exports = {
+export default {
   createEvent,
   getEvents,
   getEventById,
