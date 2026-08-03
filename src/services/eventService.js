@@ -34,7 +34,20 @@ async function getEvents(after = 0, limit = 10) {
   return rows;
 }
 
+async function getEventById(id) {
+  const query = `
+    SELECT *
+    FROM events
+    WHERE id = $1;
+  `;
+
+  const { rows } = await pool.query(query, [id]);
+
+  return rows[0];
+}
+
 module.exports = {
   createEvent,
   getEvents,
+  getEventById,
 };

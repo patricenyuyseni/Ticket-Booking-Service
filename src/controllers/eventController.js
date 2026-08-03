@@ -32,7 +32,26 @@ async function getEvents(req, res, next) {
   }
 }
 
+async function getEventById(req, res, next) {
+  try {
+    const id = Number(req.params.id);
+
+    const event = await eventService.getEventById(id);
+
+    if (!event) {
+      return res.status(404).json({
+        error: "Event not found",
+      });
+    }
+
+    res.status(200).json(event);
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   createEvent,
   getEvents,
+  getEventById,
 };
