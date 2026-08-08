@@ -1,14 +1,17 @@
+import { createBookingSchema } from "../validation/bookingSchema.js";
 import bookingService from "../services/bookingService.js";
 
 async function createBooking(req, res, next) {
   try {
     const eventId = Number(req.params.id);
-    const { customer_id, quantity } = req.body;
+
+    // Validate the request body before touching the database
+    const data = createBookingSchema.parse(req.body);
 
     const booking = await bookingService.createBooking(
       eventId,
-      customer_id,
-      quantity
+      data.customer_id,
+      data.quantity
     );
 
     res.status(201).json(booking);

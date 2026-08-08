@@ -63,6 +63,13 @@ async function createBooking(eventId, customerId, quantity) {
     // Something failed, undo everything
     await client.query("ROLLBACK");
 
+    // PostgreSQL foreign-key violation
+    if (error.code === "23503") {
+      const customerError = new Error("Customer not found");
+      customerError.statusCode = 404;
+      throw customerError;
+    }
+
     throw error;
   } finally {
     // Return the connection to the pool
