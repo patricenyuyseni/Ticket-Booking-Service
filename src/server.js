@@ -1,8 +1,8 @@
-require("dotenv").config();
+import "dotenv/config";
 
-const app = require("./app");
-const pool = require("./config/db");
-const config = require("./config/env");
+import app from "./app.js";
+import pool from "./config/db.js";
+import config from "./config/env.js";
 
 const PORT = config.PORT;
 

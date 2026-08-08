@@ -1,6 +1,6 @@
 import express from "express";
 import eventRoutes from "./routes/eventRoutes.js";
-import errorHandler from "./middleware/errorHandler.js";
+import bookingRoutes from "./routes/bookingRoutes.js";
 import errorHandler from "./middleware/errorHandler.js";
 
 const app = express();
@@ -15,7 +15,8 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/events", eventRoutes);
+app.use("/events", bookingRoutes);
 
 app.use(errorHandler);
 
-module.exports = app;
+export default app;
