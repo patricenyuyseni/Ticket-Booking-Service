@@ -7,7 +7,7 @@ async function createBooking(eventId, customerId, quantity) {
     // Start the database transaction
     await client.query("BEGIN");
 
-    // Check that the event exists and has enough seats
+    // Check that the event exists and lock the row
     const eventResult = await client.query(
       `
       SELECT id, seats_remaining
@@ -19,13 +19,18 @@ async function createBooking(eventId, customerId, quantity) {
     );
 
     if (eventResult.rows.length === 0) {
-      throw new Error("Event not found");
+      const error = new Error("Event not found");
+      error.statusCode = 404;
+      throw error;
     }
 
     const event = eventResult.rows[0];
 
+    // Check whether enough seats are available
     if (event.seats_remaining < quantity) {
-      throw new Error("Not enough seats available");
+      const error = new Error("Not enough seats available");
+      error.statusCode = 409;
+      throw error;
     }
 
     // Reduce the number of remaining seats

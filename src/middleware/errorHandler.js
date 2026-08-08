@@ -1,6 +1,7 @@
 import { ZodError } from "zod";
 
 function errorHandler(err, req, res, next) {
+
   if (err instanceof ZodError) {
     return res.status(400).json({
       error: "Validation failed",
@@ -10,8 +11,10 @@ function errorHandler(err, req, res, next) {
 
   console.error(err);
 
-  return res.status(500).json({
-    error: "Internal server error",
+  const statusCode = err.statusCode || 500;
+
+  return res.status(statusCode).json({
+    error: err.message || "Internal server error",
   });
 }
 
