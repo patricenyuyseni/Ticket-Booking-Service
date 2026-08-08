@@ -4,10 +4,8 @@ async function createBooking(eventId, customerId, quantity) {
   const client = await pool.connect();
 
   try {
-    // Start the database transaction
     await client.query("BEGIN");
 
-    // Check that the event exists and lock the row
     const eventResult = await client.query(
       `
       SELECT id, seats_remaining
@@ -26,14 +24,12 @@ async function createBooking(eventId, customerId, quantity) {
 
     const event = eventResult.rows[0];
 
-    // Check whether enough seats are available
     if (event.seats_remaining < quantity) {
       const error = new Error("Not enough seats available");
       error.statusCode = 409;
       throw error;
     }
 
-    // Reduce the number of remaining seats
     await client.query(
       `
       UPDATE events
@@ -43,7 +39,6 @@ async function createBooking(eventId, customerId, quantity) {
       [quantity, eventId]
     );
 
-    // Create the booking
     const bookingResult = await client.query(
       `
       INSERT INTO bookings
@@ -55,15 +50,12 @@ async function createBooking(eventId, customerId, quantity) {
       [eventId, customerId, quantity]
     );
 
-    // Everything succeeded
     await client.query("COMMIT");
 
     return bookingResult.rows[0];
   } catch (error) {
-    // Something failed, undo everything
     await client.query("ROLLBACK");
 
-    // PostgreSQL foreign-key violation
     if (error.code === "23503") {
       const customerError = new Error("Customer not found");
       customerError.statusCode = 404;
@@ -72,11 +64,50 @@ async function createBooking(eventId, customerId, quantity) {
 
     throw error;
   } finally {
-    // Return the connection to the pool
     client.release();
   }
 }
 
+async function getBookingById(id) {
+  const result = await pool.query(
+    `
+    SELECT
+      id,
+      event_id,
+      customer_id,
+      quantity,
+      status,
+      booked_at
+    FROM bookings
+    WHERE id = $1;
+    `,
+    [id]
+  );
+
+  return result.rows[0] || null;
+}
+
+async function getBookings() {
+  const result = await pool.query(
+    `
+    SELECT
+      id,
+      event_id,
+      customer_id,
+      quantity,
+      status,
+      booked_at
+    FROM bookings
+    ORDER BY id ASC;
+    `
+  );
+
+  return result.rows;
+}
+
 export default {
   createBooking,
+  getBookingById,
+  getBookings,
 };
+

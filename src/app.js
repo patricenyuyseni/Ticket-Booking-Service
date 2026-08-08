@@ -14,8 +14,9 @@ app.get("/health", (req, res) => {
   });
 });
 
-app.use("/events", eventRoutes);
+// Booking routes must come before event /:id routes
 app.use("/events", bookingRoutes);
+app.use("/events", eventRoutes);
 
 app.use(errorHandler);
 
