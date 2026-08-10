@@ -1,0 +1,244 @@
+openapi: 3.0.3
+
+info:
+  title: Ticket Booking Service API
+  description: REST API for managing events and booking tickets.
+  version: 1.0.0
+
+servers:
+  - url: /
+
+tags:
+  - name: Health
+  - name: Events
+  - name: Bookings
+
+paths:
+
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Check server health
+      responses:
+        "200":
+          description: Server is healthy
+
+  /events:
+    get:
+      tags:
+        - Events
+      summary: List events
+      parameters:
+        - name: after
+          in: query
+          schema:
+            type: integer
+            default: 0
+
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+
+      responses:
+        "200":
+          description: List of events
+
+    post:
+      tags:
+        - Events
+      summary: Create an event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventInput"
+
+      responses:
+        "201":
+          description: Event created
+
+        "400":
+          description: Invalid request
+
+  /events/{id}:
+    get:
+      tags:
+        - Events
+      summary: Get an event by ID
+
+      parameters:
+        - $ref: "#/components/parameters/EventId"
+
+      responses:
+        "200":
+          description: Event found
+
+        "404":
+          description: Event not found
+
+  /events/{id}/bookings:
+    get:
+      tags:
+        - Bookings
+      summary: List bookings for an event
+
+      parameters:
+        - $ref: "#/components/parameters/EventId"
+
+        - name: after
+          in: query
+          schema:
+            type: integer
+            default: 0
+
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+
+      responses:
+        "200":
+          description: Paginated event bookings
+
+        "404":
+          description: Event not found
+
+    post:
+      tags:
+        - Bookings
+      summary: Create a booking
+
+      parameters:
+        - $ref: "#/components/parameters/EventId"
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookingInput"
+
+      responses:
+        "201":
+          description: Booking created
+
+        "400":
+          description: Invalid request or customer
+
+        "404":
+          description: Event not found
+
+        "409":
+          description: Not enough seats or event cancelled
+
+  /events/bookings:
+    get:
+      tags:
+        - Bookings
+      summary: List all bookings
+
+      responses:
+        "200":
+          description: List of bookings
+
+  /events/bookings/{bookingId}:
+    get:
+      tags:
+        - Bookings
+      summary: Get booking by ID
+
+      parameters:
+        - $ref: "#/components/parameters/BookingId"
+
+      responses:
+        "200":
+          description: Booking found
+
+        "404":
+          description: Booking not found
+
+  /events/bookings/{id}/cancel:
+    post:
+      tags:
+        - Bookings
+      summary: Cancel a booking
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        "204":
+          description: Booking cancelled
+
+        "404":
+          description: Booking not found
+
+        "409":
+          description: Booking already cancelled
+
+components:
+
+  parameters:
+
+    EventId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+    BookingId:
+      name: bookingId
+      in: path
+      required: true
+      schema:
+        type: integer
+
+  schemas:
+
+    EventInput:
+      type: object
+      required:
+        - name
+        - venue
+        - starts_at
+        - capacity
+
+      properties:
+        name:
+          type: string
+
+        venue:
+          type: string
+
+        starts_at:
+          type: string
+          format: date-time
+
+        capacity:
+          type: integer
+          minimum: 0
+
+    BookingInput:
+      type: object
+      required:
+        - customer_id
+        - quantity
+
+      properties:
+        customer_id:
+          type: integer
+
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 10
