@@ -13,11 +13,34 @@ async function createBooking(req, res, next) {
       data.quantity
     );
 
-    res.status(201).json(booking);
+    res
+      .status(201)
+      .location(`/events/bookings/${booking.id}`)
+      .json(booking);
   } catch (error) {
     next(error);
   }
 }
+
+
+async function cancelBooking(req, res, next) {
+  try {
+    const bookingId = Number(req.params.id);
+
+    if (Number.isNaN(bookingId)) {
+      const error = new Error("Invalid booking ID");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    await bookingService.cancelBooking(bookingId);
+
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+}
+
 
 async function getBookings(req, res, next) {
   try {
@@ -30,6 +53,7 @@ async function getBookings(req, res, next) {
     next(error);
   }
 }
+
 
 async function getBookingById(req, res, next) {
   try {
@@ -55,8 +79,10 @@ async function getBookingById(req, res, next) {
   }
 }
 
+
 export default {
   createBooking,
+  cancelBooking,
   getBookings,
   getBookingById,
 };

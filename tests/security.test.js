@@ -1,6 +1,7 @@
 import "dotenv/config";
 import test from "node:test";
 import assert from "node:assert/strict";
+
 import app from "../src/app.js";
 
 const PORT = 3103;
@@ -37,7 +38,7 @@ test("booking with invalid quantity returns 400", async () => {
   assert.equal(data.error, "Validation failed");
 });
 
-test("booking with nonexistent customer returns 404", async () => {
+test("booking with nonexistent customer returns 400", async () => {
   const response = await fetch(
     `http://localhost:${PORT}/events/1/bookings`,
     {
@@ -52,9 +53,31 @@ test("booking with nonexistent customer returns 404", async () => {
     }
   );
 
-  assert.equal(response.status, 404);
+  assert.equal(response.status, 400);
 
   const data = await response.json();
 
   assert.equal(data.error, "Customer not found");
+});
+
+test("SQL injection attempt is rejected safely", async () => {
+  const response = await fetch(
+    `http://localhost:${PORT}/events/1/bookings`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        customer_id: "1 OR 1=1",
+        quantity: 1,
+      }),
+    }
+  );
+
+  assert.equal(response.status, 400);
+
+  const data = await response.json();
+
+  assert.equal(data.error, "Validation failed");
 });
